@@ -596,3 +596,12 @@ body{
   color:var(--muted);
   font-size:11px;
 }
+
+
+button, .btn, .tab, .icon-btn, .parent-chip, .small-btn, .small-btn-ghost{
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.overlay-content{
+  -webkit-overflow-scrolling: touch;
+}

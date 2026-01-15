@@ -8,6 +8,17 @@ const TAP_CHAR_UUID = "12345678-1234-5678-1234-56789abcdef2";
 
 const el = (id) => document.getElementById(id);
 
+function bindPress(node, handler) {
+  if (!node) return;
+  const run = (ev) => {
+    try { ev.preventDefault(); } catch (e) {}
+    handler(ev);
+  };
+  node.addEventListener("click", run, { passive: false });
+  node.addEventListener("pointerup", run, { passive: false });
+  node.addEventListener("touchend", run, { passive: false });
+}
+
 const views = {
   connect: el("viewConnect"),
   cheer: el("viewCheer"),
@@ -145,7 +156,7 @@ function pickGachaItem() {
     if (it.rarity === "SR") w = 2;
     for (let i = 0; i < w; i++) pool.push(it);
   }
-  const idx = Math.floor(Math.random() × pool.length);
+  const idx = Math.floor(Math.random() * pool.length);
   return pool[idx];
 }
 
@@ -501,7 +512,7 @@ function renderMissions() {
     btn.className = "small-btn";
     btn.textContent = m.claimed ? "受取済み" : (m.achieved ? "うけとる" : "未達成");
     btn.disabled = m.claimed || !m.achieved;
-    btn.addEventListener("click", () => claimMission(m.id));
+    bindPress(btn, () => claimMission(m.id));
     actions.appendChild(btn);
 
     row.appendChild(left);
@@ -582,7 +593,7 @@ function renderCollection() {
     btnEquip.className = "small-btn";
     btnEquip.textContent = (item.itemId === equippedId) ? "装着中" : "つける";
     btnEquip.disabled = item.itemId === equippedId;
-    btnEquip.addEventListener("click", () => equipItem(item.itemId));
+    bindPress(btnEquip, () => equipItem(item.itemId));
     actions.appendChild(btnEquip);
 
     const toggleWrap = document.createElement("label");
@@ -627,7 +638,7 @@ function renderCollection() {
     const btn = document.createElement("button");
     btn.className = "small-btn-ghost";
     btn.textContent = "はずす";
-    btn.addEventListener("click", () => toggleWishlist(id, false));
+    bindPress(btn, () => toggleWishlist(id, false));
     actions.appendChild(btn);
     row.appendChild(left);
     row.appendChild(actions);
@@ -786,17 +797,17 @@ function renderAll() {
 function bindUi() {
   if (!bluetoothSupported()) el("bluetoothSupport").hidden = false;
 
-  el("btnScan").addEventListener("click", requestDevice);
-  el("btnConnect").addEventListener("click", connectGatt);
+  bindPress(el("btnScan"), requestDevice);
+  bindPress(el("btnConnect"), connectGatt);
 
-  el("btnStart").addEventListener("click", () => {
+  bindPress(el("btnStart"), () => {
     showView("cheer");
     setTodayLabel();
     tickCheer();
     toast("応援スタート");
   });
 
-  el("btnDemo").addEventListener("click", () => {
+  bindPress(el("btnDemo"), () => {
     state.demo = true;
     state.isConnected = false;
     setConnPill("pill-ok", "デモ");
@@ -807,11 +818,11 @@ function bindUi() {
     startDemoTaps();
   });
 
-  el("btnParent").addEventListener("click", () => showOverlay(true));
-  el("btnCloseOverlay").addEventListener("click", () => showOverlay(false));
+  bindPress(el("btnParent"), () => showOverlay(true));
+  bindPress(el("btnCloseOverlay"), () => showOverlay(false));
 
   for (const t of tabs) {
-    el(t.id).addEventListener("click", () => {
+    bindPress(el(t.id), () => {
       setTab(t.key);
       panels.real.hidden = true;
       el("realNext").hidden = true;
@@ -819,36 +830,36 @@ function bindUi() {
     });
   }
 
-  el("btnClaimFirst").addEventListener("click", claimFirstBonus);
+  bindPress(el("btnClaimFirst"), claimFirstBonus);
 
-  el("btnRoll").addEventListener("click", () => {
+  bindPress(el("btnRoll"), () => {
     rollGacha();
     toast("ひいた！");
   });
 
-  el("btnEquipResult").addEventListener("click", () => {
+  bindPress(el("btnEquipResult"), () => {
     if (!state.pendingResult) return;
     equipItem(state.pendingResult.itemId);
     state.pendingResult = null;
     renderAll();
   });
 
-  el("btnCloseResult").addEventListener("click", () => {
+  bindPress(el("btnCloseResult"), () => {
     state.pendingResult = null;
     renderAll();
   });
 
-  el("btnGoReal").addEventListener("click", openRealPanel);
-  el("btnBackFromReal").addEventListener("click", backFromRealPanel);
+  bindPress(el("btnGoReal"), openRealPanel);
+  bindPress(el("btnBackFromReal"), backFromRealPanel);
 
   bindRealGate();
 
-  el("btnEvtPoint").addEventListener("click", () => writePattern(0));
-  el("btnEvtChance").addEventListener("click", () => writePattern(1));
-  el("btnEvtPinch").addEventListener("click", () => writePattern(2));
-  el("btnEvtStop").addEventListener("click", () => writePattern(255));
+  bindPress(el("btnEvtPoint"), () => writePattern(0));
+  bindPress(el("btnEvtChance"), () => writePattern(1));
+  bindPress(el("btnEvtPinch"), () => writePattern(2));
+  bindPress(el("btnEvtStop"), () => writePattern(255));
 
-  el("btnReconnect").addEventListener("click", async () => {
+  bindPress(el("btnReconnect"), async () => {
     if (state.device && state.device.gatt && !state.device.gatt.connected) {
       await connectGatt();
     } else if (state.isConnected) {
@@ -858,7 +869,7 @@ function bindUi() {
     }
   });
 
-  el("btnDisconnect").addEventListener("click", () => {
+  bindPress(el("btnDisconnect"), () => {
     try {
       if (state.device && state.device.gatt && state.device.gatt.connected) state.device.gatt.disconnect();
     } catch (e) {}
@@ -867,7 +878,7 @@ function bindUi() {
     toast("きりはなしました");
   });
 
-  el("btnPause").addEventListener("click", () => {
+  bindPress(el("btnPause"), () => {
     const session = readSession();
     session.paused = !session.paused;
     writeSession(session);
@@ -875,7 +886,7 @@ function bindUi() {
     renderAll();
   });
 
-  el("btnEnd").addEventListener("click", () => {
+  bindPress(el("btnEnd"), () => {
     const session = readSession();
     session.totalHits = 0;
     session.hitTimes = [];
@@ -886,9 +897,12 @@ function bindUi() {
     renderAll();
   });
 
-  el("sens").addEventListener("input", () => saveSettings());
-  el("vibe").addEventListener("input", () => saveSettings());
-  el("strength").addEventListener("input", () => saveSettings());
+  const sensEl = el("sens");
+  const vibeEl = el("vibe");
+  const strengthEl = el("strength");
+  sensEl.addEventListener("input", () => saveSettings());
+  vibeEl.addEventListener("input", () => saveSettings());
+  strengthEl.addEventListener("input", () => saveSettings());
 }
 
 function saveSettings() {
@@ -902,11 +916,14 @@ function saveSettings() {
 function startDemoTaps() {
   // デモ用：画面をタップしたら叩き扱いにする
   const cheer = el("viewCheer");
-  cheer.addEventListener("click", () => {
+  const fire = () => {
     if (!state.demo) return;
     // notifyが来た体で処理
     onTapNotify({ target: { value: null } });
-  });
+  };
+  cheer.addEventListener("click", fire, { passive: true });
+  cheer.addEventListener("pointerup", fire, { passive: true });
+  cheer.addEventListener("touchend", fire, { passive: true });
 }
 
 function boot() {

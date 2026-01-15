@@ -1,0 +1,13 @@
+{
+  "name": "cheerbat-web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "babel app.js --out-file app.es5.js --presets=@babel/preset-env"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.22.10",
+    "@babel/core": "^7.22.10",
+    "@babel/preset-env": "^7.22.10"
+  }
+}
